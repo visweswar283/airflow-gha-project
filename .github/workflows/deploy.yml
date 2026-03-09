@@ -1,8 +1,9 @@
-name: Deploy Airflow
+name: Build and Push to ECR
 
 on:
   push:
-    branches: [ main ]
+    branches:
+      - main
 
 jobs:
   build:
@@ -13,26 +14,26 @@ jobs:
     - name: Checkout code
       uses: actions/checkout@v4
 
-    - name: Configure AWS
-      uses: aws-actions/configure-aws-credentials@v3
+    - name: Configure AWS credentials
+      uses: aws-actions/configure-aws-credentials@v4
       with:
-        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY }}
-        aws-secret-access-key: ${{ secrets.AWS_SECRET_KEY }}
+        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
         aws-region: us-east-1
 
-    - name: Login to ECR
+    - name: Login to Amazon ECR
       uses: aws-actions/amazon-ecr-login@v2
 
-    - name: Build Docker Image
+    - name: Build Docker image
       run: |
-        docker build -t airflow-image .
+        docker build -t airflow-gha-project .
 
-    - name: Tag Image
+    - name: Tag Docker image
       run: |
-        docker tag airflow-image \
-        123456789.dkr.ecr.us-east-1.amazonaws.com/airflow:latest
+        docker tag airflow-gha-project:latest \
+        860515818510.dkr.ecr.us-east-1.amazonaws.com/airflow-gha-project:latest
 
-    - name: Push Image
+    - name: Push Docker image
       run: |
         docker push \
-        123456789.dkr.ecr.us-east-1.amazonaws.com/airflow:latest
+        860515818510.dkr.ecr.us-east-1.amazonaws.com/airflow-gha-project:latest
